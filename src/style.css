@@ -60,6 +60,7 @@ main {
         height: 100%;
         background-color: var(--c);
     }
+    /* & > *:has(+ *) { border-bottom: 1px solid #F00A; } */
     & > *:first-child { border-radius: 6px 6px 0 0; }
     & > *:last-child { border-radius: 0 0 6px 6px; }
     & > [data-row="2"] { grid-row: span 2; }
@@ -70,7 +71,7 @@ main {
     & > [data-row="7"] { grid-row: span 7; }
     & > [data-row="8"] { grid-row: span 8; }
     &.bottle-target {
-        border-color: #ff835a80;
-        box-shadow: 0 0 0 3px #fff3, 0 0 18px #ff835a80;
+        border-color: #0004;
+        box-shadow: 0 0 0 3px #fff3, 0 0 18px #0008;
     }
 }

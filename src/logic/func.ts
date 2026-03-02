@@ -47,6 +47,7 @@ export function pouringBottles(from: BottleId, to: BottleId) {
     while(capacity >= 1 && bottleFrom.at(0) === color) {
         bottleFrom.shift()
         bottleTo = [color].concat(bottleTo)
+        capacity--;
     }
 
     bottles.set(to, bottleTo)

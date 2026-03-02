@@ -1,8 +1,5 @@
-import COLORS from "./colors.json"
 import { syncWithBottle } from "./func"
 import { MAX_PER_BOTTLE, bottles } from "./mod"
-
-const colors: [string, number][] = []
 
 export function transparent_bottle() {
     const e = document.createElement('div')
@@ -19,13 +16,9 @@ export function colored_bottle(color: string) {
     return e
 }
 
-function setupCss(bottle: number) {
+function setupCss(n_bottle: number) {
     document.body.style.setProperty('--max-per-bottle', MAX_PER_BOTTLE.toString())
-    document.body.style.setProperty('--n-bottles', bottle.toString())
-}
-
-function fillColorsArray(bottle: number) {
-    colors.push(...COLORS.slice(0, bottle).map(c => ([c, 0] as [string, number])))
+    document.body.style.setProperty('--n-bottles', n_bottle.toString())
 }
 
 function initializeBottle(): HTMLDivElement {
@@ -36,65 +29,39 @@ function initializeBottle(): HTMLDivElement {
     bottle.classList.add('bottle')
     bottle.id = id
 
-    for(let i = 0; i < 6; i++) bottle.append(transparent_bottle())
+    for(let i = 0; i < MAX_PER_BOTTLE; i++) bottle.append(transparent_bottle())
 
     return bottle
 }
 
-function isReady() {
-    return new Array(...bottles.values()).every(bottle => bottle.length === MAX_PER_BOTTLE - 1)
-}
-
-
-function fillWithColor(color: string) {
-    const b = new Array(...bottles.entries())
-
-    let hint = Math.floor(Math.random() * b.length)
-
-    while(b[hint][1].length === MAX_PER_BOTTLE - 1) {
-        hint = Math.floor(Math.random() * b.length)
-    }
-
-    b[hint][1].push(color)
-
-    b.forEach(([id, bottle]) => bottles.set(id, bottle))
-}
-
-function isBottleNumberPossible(n: number) {
-    const c = (MAX_PER_BOTTLE - 1) * n / MAX_PER_BOTTLE
-    return Math.round(c) === c
-}
-
-export default (n_bottle: number) => {
-    if(!isBottleNumberPossible(n_bottle)) throw new Error('Impossible')
-
+export default async (n_bottles: number) => {
     const main = document.querySelector('main') as HTMLElement
-    setupCss(n_bottle)
-    fillColorsArray(n_bottle)
-    const bottlesHolder = []
+    setupCss(n_bottles)
     
-    for(let i = 0; i < n_bottle; i++) {
-        const bottle = initializeBottle()
-        bottlesHolder.push(bottle)
+    for(let i = 0; i < n_bottles; i++) main.append(initializeBottle())
+
+    const listener = (ev: MessageEvent) => {
+        console.log(ev)
+        if(ev.data.type !== "setup:output") return
+        const b = ev.data.output.bottles as string[][]
+        
+        if(bottles.size !== b.length) throw "Something went wrong"
+        let i = 0;
+
+        bottles.forEach((_, key) => {
+            bottles.set(key, b[i])
+            i++
+            
+            syncWithBottle(key)
+        })
     }
-    main.append(...bottlesHolder)
-
-    const count_per_color: Array<[number, number]> = Array.from(
-        { length: n_bottle - 1 },
-        (_, index) => [0, index]
-    )
-    let count = 0
-    while(count_per_color.length !== 0 && count < 1000) {
-        const hint = Math.floor(Math.random() * count_per_color.length)
-
-        fillWithColor(COLORS.at(count_per_color[hint][1])!)
-
-        count_per_color[hint][0]++
-        if(count_per_color[hint][0] >= MAX_PER_BOTTLE) 
-            count_per_color.splice(hint, 1)
-    
-        count++
+    const input = {
+        type: "setup",
+        input: { n_bottles }
     }
 
-    for(const id of bottles.keys()) syncWithBottle(id)
+    navigator.serviceWorker.addEventListener('message', listener)
+    
+    const registration = await navigator.serviceWorker.ready
+    registration.active?.postMessage(input)
 }
