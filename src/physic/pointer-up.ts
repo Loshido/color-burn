@@ -10,7 +10,6 @@ export function onPointerUpUsingCallback(pouring: InteractionCallback) {
     return function(this: HTMLDivElement, ev: PointerEvent) {
         const targetBottle = getBottleUnderPointer(ev.clientX, ev.clientY, this)
         resetBottle(this, ev)
-
         if(targetBottle) pouring(this.id, targetBottle.id)
     }
 }
@@ -35,7 +34,6 @@ function snapBackToOrigin(element: HTMLDivElement, state: DragState) {
     element.style.transform = 'rotate(0deg)'
 
     const complete = () => {
-        console.log(element, state.placeholder)
         state.placeholder.replaceWith(element)
         resetDraggingStyles(element)
     }

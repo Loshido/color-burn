@@ -31,6 +31,7 @@ function initializeBottle(): HTMLDivElement {
 function reset() {
     bottles.clear()
     
+    document.querySelectorAll('.bottle').forEach(el => el.remove())
     const main = document.querySelector('main') as HTMLElement
     main.innerHTML = ""
 }
