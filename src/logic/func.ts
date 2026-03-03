@@ -1,4 +1,4 @@
-import { bottles, MAX_PER_BOTTLE } from "./mod";
+import { bottles, MAX_PER_BOTTLE, n_bottles } from "./mod";
 
 type BottleId = string
 type Layer = HTMLDivElement
@@ -20,7 +20,8 @@ function setLayerColor(layer: Layer, color: string) {
 }
 
 export function syncWithBottle(id: BottleId) {
-    const bottleElement = document.getElementById(id) as HTMLDivElement
+    const bottleElement = document.getElementById(id) as HTMLDivElement | null
+    if(!bottleElement) return
     const bottle = bottles.get(id)!
     
     const layerList = bottleElement.querySelectorAll('[data-color]') as NodeListOf<HTMLDivElement>
@@ -55,6 +56,13 @@ export function pouringBottles(from: BottleId, to: BottleId) {
 
     if(bottleTo.every((_, i, a) => a.at(i) === a.at(i - 1)) && bottleTo.length === MAX_PER_BOTTLE) {
         document.getElementById(to)?.remove()
+        bottles.delete(to)
+
+        if(bottles.size <= Math.round(n_bottles / 6) ) {
+            const event = new CustomEvent('color-burn:end')
+            console.log(event)
+            document.dispatchEvent(event)
+        }
     }
     
     syncWithBottle(from)

@@ -1,5 +1,5 @@
 import { syncWithBottle } from "./func"
-import { MAX_PER_BOTTLE, bottles } from "./mod"
+import { MAX_PER_BOTTLE, bottles, n_bottles } from "./mod"
 
 export function transparent_bottle() {
     const e = document.createElement('div')
@@ -16,9 +16,9 @@ export function colored_bottle(color: string) {
     return e
 }
 
-function setupCss(n_bottle: number) {
+function setupCss() {
     document.body.style.setProperty('--max-per-bottle', MAX_PER_BOTTLE.toString())
-    document.body.style.setProperty('--n-bottles', n_bottle.toString())
+    document.body.style.setProperty('--n-bottles', n_bottles.toString())
 }
 
 function initializeBottle(): HTMLDivElement {
@@ -34,9 +34,16 @@ function initializeBottle(): HTMLDivElement {
     return bottle
 }
 
-export default async (n_bottles: number) => {
+function reset() {
+    bottles.clear()
     const main = document.querySelector('main') as HTMLElement
-    setupCss(n_bottles)
+    main.innerHTML = ""
+}
+
+export default async () => {
+    reset()
+    const main = document.querySelector('main') as HTMLElement
+    setupCss()
     
     for(let i = 0; i < n_bottles; i++) main.append(initializeBottle())
 

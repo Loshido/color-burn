@@ -4,7 +4,7 @@ import setupLogic from "./logic/mod"
 
 export let sw: ServiceWorkerRegistration | null = null
 
-const n = 6 * 6 // 12 or 18
+let n = 6 * 1
 
 if ('serviceWorker' in navigator) {
     (await navigator.serviceWorker.getRegistration())?.unregister()
@@ -13,5 +13,13 @@ if ('serviceWorker' in navigator) {
     await navigator.serviceWorker.ready
 }
 
-const { onPouring } = setupLogic(n)
-setupPhysics({ onPouring })
+document.addEventListener('color-burn:end', () => {
+    n += 6
+    start()
+})
+
+function start() {
+    const { onPouring } = setupLogic(n)
+    setupPhysics({ onPouring })
+}
+start()
