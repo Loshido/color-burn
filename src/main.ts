@@ -1,25 +1,31 @@
 import "./style.css"
-import setupPhysics from "./physics"
+import setupPhysics from "./physic/mod"
 import setupLogic from "./logic/mod"
 
-export let sw: ServiceWorkerRegistration | null = null
+export let n_bottles = 6 * 1
+const SW_VERSION = "dev:0.1.0"
 
-let n = 6 * 1
-
+// setup a service worker (computation out of the main thread)
 if ('serviceWorker' in navigator) {
-    (await navigator.serviceWorker.getRegistration())?.unregister()
-    sw = await navigator.serviceWorker.register('/sw.js');
-    // Attendre que le service worker soit actif
+    const version = localStorage.getItem('sw-version')
+    if(version !== SW_VERSION) {
+        const registration = await navigator.serviceWorker.getRegistration()
+        registration?.unregister()
+        localStorage.setItem('sw-version', SW_VERSION)
+    }
+    await navigator.serviceWorker.register('/sw.js');
     await navigator.serviceWorker.ready
 }
 
+// once the game ends we start again with more bottles
 document.addEventListener('color-burn:end', () => {
-    n += 6
+    n_bottles += 6 // bottles must be a multiple of 6.
     start()
 })
 
 function start() {
-    const { onPouring } = setupLogic(n)
+    const { onPouring } = setupLogic()
     setupPhysics({ onPouring })
 }
+
 start()

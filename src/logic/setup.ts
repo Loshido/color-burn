@@ -1,14 +1,8 @@
 import { syncWithBottle } from "./func"
-import { MAX_PER_BOTTLE, bottles, n_bottles } from "./mod"
+import { MAX_PER_BOTTLE, bottles } from "./mod"
+import { n_bottles } from "../main"
 
-export function transparent_bottle() {
-    const e = document.createElement('div')
-    e.style.setProperty('--c', "transparent")
-    e.setAttribute('data-color', 'transparent')
-    
-    return e
-}
-export function colored_bottle(color: string) {
+export function createLayer(color: string = "transparent") {
     const e = document.createElement('div')
     e.setAttribute('data-color', color)
     e.style.setProperty('--c', `#${color}`)
@@ -16,26 +10,27 @@ export function colored_bottle(color: string) {
     return e
 }
 
-function setupCss() {
+function defineCssProperties() {
     document.body.style.setProperty('--max-per-bottle', MAX_PER_BOTTLE.toString())
     document.body.style.setProperty('--n-bottles', n_bottles.toString())
 }
 
 function initializeBottle(): HTMLDivElement {
     const id = Math.floor(Math.random() * 10E8).toString(36)
-    bottles.set(id, [])
-
     const bottle = document.createElement('div')
+    
     bottle.classList.add('bottle')
     bottle.id = id
+    bottles.set(id, [])
 
-    for(let i = 0; i < MAX_PER_BOTTLE; i++) bottle.append(transparent_bottle())
+    for(let i = 0; i < MAX_PER_BOTTLE; i++) bottle.append(createLayer())
 
     return bottle
 }
 
 function reset() {
     bottles.clear()
+    
     const main = document.querySelector('main') as HTMLElement
     main.innerHTML = ""
 }
@@ -43,25 +38,29 @@ function reset() {
 export default async () => {
     reset()
     const main = document.querySelector('main') as HTMLElement
-    setupCss()
+    defineCssProperties()
     
+    // appends empty bottles
     for(let i = 0; i < n_bottles; i++) main.append(initializeBottle())
 
+    // listener for the sw (service worker) of thread
+    // to get the color shuffled bottles
     const listener = (ev: MessageEvent) => {
-        console.log(ev)
         if(ev.data.type !== "setup:output") return
         const b = ev.data.output.bottles as string[][]
         
-        if(bottles.size !== b.length) throw "Something went wrong"
+        if(bottles.size !== b.length) 
+            throw "The computed color shuffled bottles "
+            + "doesn't match with the placeholder"
+            
         let i = 0;
-
         bottles.forEach((_, key) => {
-            bottles.set(key, b[i])
-            i++
+            bottles.set(key, b[i++])
             
             syncWithBottle(key)
         })
     }
+    // ask the sw for the bottle's array / color shuffled bottles
     const input = {
         type: "setup",
         input: { n_bottles }

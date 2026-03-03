@@ -9,7 +9,7 @@ export default {
         rollupOptions: {
             input: {
                 index: 'index.html',
-                sw: 'src/sw/mod',
+                sw: 'src/worker/mod',
             },
             output: {
                 entryFileNames: (chunkInfo) => {
