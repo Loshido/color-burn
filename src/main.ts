@@ -3,7 +3,7 @@ import setupPhysics from "./physic/mod"
 import setupLogic from "./logic/mod"
 
 export let n_bottles = 6 * 1
-const SW_VERSION = "dev:0.1.0"
+const SW_VERSION = "dev:0.1.1"
 
 // setup a service worker (computation out of the main thread)
 if ('serviceWorker' in navigator) {

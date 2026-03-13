@@ -10,6 +10,7 @@ addEventListener('activate', (ev) => {     //
 /* * * * * * * * * * * * * * * * * * * * * */
 
 import setup, { type SetupInput } from "./setup"
+import setup_offline from "./offline"
 export const MAX_PER_BOTTLE = 6
 
 interface SetupMessage {
@@ -19,7 +20,7 @@ interface SetupMessage {
 
 type Message = SetupMessage
 
-
+setup_offline()
 addEventListener('message', async ev => {
     const data: Message = ev.data
     switch(data.type) {
